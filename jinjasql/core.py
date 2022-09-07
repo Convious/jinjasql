@@ -3,14 +3,9 @@ from jinja2 import Environment
 from jinja2 import Template
 from jinja2.ext import Extension
 from jinja2.lexer import Token
-from jinja2.utils import Markup
+from markupsafe import Markup
 from collections.abc import Iterable
-
-try:
-    from collections import OrderedDict
-except ImportError:
-    # For Python 2.6 and less
-    from ordereddict import OrderedDict
+from collections import OrderedDict
 
 from threading import local
 from random import Random
@@ -173,7 +168,7 @@ class JinjaSql(object):
     def __init__(self, env=None, param_style='format', identifier_quote_character='"'):
         self.param_style = param_style
         if identifier_quote_character not in self.VALID_ID_QUOTE_CHARS:
-            raise ValueError("identifier_quote_characters must be one of " + VALID_ID_QUOTE_CHARS)
+            raise ValueError("identifier_quote_characters must be one of " + self.VALID_ID_QUOTE_CHARS)
         self.identifier_quote_character = identifier_quote_character
         self.env = env or Environment()
         self._prepare_environment()
@@ -181,7 +176,6 @@ class JinjaSql(object):
     def _prepare_environment(self):
         self.env.autoescape=True
         self.env.add_extension(SqlExtension)
-        self.env.add_extension('jinja2.ext.autoescape')
         self.env.filters["bind"] = bind
         self.env.filters["sqlsafe"] = sql_safe
         self.env.filters["inclause"] = bind_in_clause
